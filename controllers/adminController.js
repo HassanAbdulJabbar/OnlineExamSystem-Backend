@@ -1,0 +1,236 @@
+const jwt = require("jsonwebtoken");
+const User = require("../models/userModel");
+const Questionnaire = require("../models/questionnaireModel");
+const ExamResult = require("../models/examResultModel");
+const ExamApproval = require("../models/examApprovalModel");
+
+require("dotenv").config();
+
+function generateToken(user) {
+  return jwt.sign({ _id: user._id, userType: user.userType }, SECRET_KEY, {
+    expiresIn: "1h",
+  });
+}
+
+function verifyToken(token) {
+  return jwt.verify(token, SECRET_KEY);
+}
+
+// Middleware to verify JWT and check if the user is an admin
+function authenticateAdmin(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized - Token not provided" });
+  }
+
+  try {
+    const decoded = verifyToken(token);
+    if (decoded.userType !== "Admin") {
+      return res
+        .status(403)
+        .json({ message: "Forbidden - Admin access required" });
+    }
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized - Invalid token" });
+  }
+}
+
+// Function to add a new teacher
+async function addTeacher(req, res) {
+  try {
+    const { name, email, password } = req.body;
+    const newUser = new User({
+      name,
+      email,
+      password,
+      userType: "Teacher",
+    });
+    await newUser.save();
+    res.status(201).json({ message: "Teacher added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Function to remove a teacher
+async function removeTeacher(req, res) {
+  try {
+    const teacherId = req.params.teacherId;
+    await User.findByIdAndRemove(teacherId);
+    res.status(200).json({ message: "Teacher removed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Function to update a teacher
+async function updateTeacher(req, res) {
+  try {
+    const teacherId = req.params.teacherId;
+    const updates = req.body;
+    const updatedTeacher = await User.findByIdAndUpdate(teacherId, updates, {
+      new: true,
+    });
+    res.status(200).json({
+      message: "Teacher updated successfully",
+      teacher: updatedTeacher,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Function to add a new student
+async function addStudent(req, res) {
+  try {
+    const { name, email, password, profilePicture } = req.body;
+    const newUser = new User({
+      name,
+      email,
+      password,
+      userType: "Student",
+      profilePicture,
+    });
+    await newUser.save();
+    res.status(201).json({ message: "Student added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Function to remove a student
+async function removeStudent(req, res) {
+  try {
+    const studentId = req.params.studentId;
+    await User.findByIdAndRemove(studentId);
+    res.status(200).json({ message: "Student removed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Function to update a student
+async function updateStudent(req, res) {
+  try {
+    const studentId = req.params.studentId;
+    const updates = req.body;
+    const updatedStudent = await User.findByIdAndUpdate(studentId, updates, {
+      new: true,
+    });
+    res.status(200).json({
+      message: "Student updated successfully",
+      student: updatedStudent,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function approveQuestionnaire(req, res) {
+  try {
+    const questionnaireId = req.params.questionnaireId;
+
+    // Update the questionnaire status to "Approved"
+    await Questionnaire.findByIdAndUpdate(questionnaireId, {
+      status: "Approved",
+    });
+
+    // Create or update ExamApproval record for the approved questionnaire
+    await ExamApproval.findOneAndUpdate(
+      { exam: questionnaireId },
+      { approved: "approved", approvalDate: new Date() },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: "Questionnaire approved successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function disapproveQuestionnaire(req, res) {
+  try {
+    const questionnaireId = req.params.questionnaireId;
+
+    // Update the questionnaire status to "Approved"
+    await Questionnaire.findByIdAndUpdate(questionnaireId, {
+      status: "Disapproved",
+    });
+
+    // Create or update ExamApproval record for the approved questionnaire
+    await ExamApproval.findOneAndUpdate(
+      { exam: questionnaireId },
+      { approved: "Disapproved", approvalDate: new Date() },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: "Questionnaire disapproved successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+async function viewExamScores(req, res) {
+  try {
+    const examId = req.params.examId;
+    const examResults = await ExamResult.find({ exam: examId }).populate(
+      "student",
+      "name"
+    );
+    res.status(200).json({ examResults });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
+// Cancel an exam for an admin
+async function cancelExam(req, res) {
+  try {
+    const questionnaireId = req.params.questionnaireId;
+
+    // Update the exam status to "Cancelled"
+    await Questionnaire.findByIdAndUpdate(questionnaireId, {
+      status: "Cancelled",
+    });
+
+    // Create or update ExamApproval record for the cancelled exam
+    await ExamApproval.findOneAndUpdate(
+      { exam: questionnaireId },
+      { approved: "Cancelled", approvalDate: new Date() },
+      { upsert: true }
+    );
+
+    res.status(200).json({ message: "Exam canceled successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to cancel the exam" });
+  }
+}
+
+module.exports = {
+  authenticateAdmin,
+  addTeacher,
+  removeTeacher,
+  updateTeacher,
+  addStudent,
+  removeStudent,
+  updateStudent,
+  approveQuestionnaire,
+  disapproveQuestionnaire,
+  viewExamScores,
+  cancelExam,
+};
