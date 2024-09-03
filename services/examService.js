@@ -1,13 +1,6 @@
-// examService.js
 const Exam = require("../models/examModel");
-const Questionnaire = require("../models/questionnaireModel");
 
-exports.createExam = async ({
-  title,
-  startDateTime,
-  expiryDateTime,
-  questions,
-}) => {
+async function createExam({ title, startDateTime, expiryDateTime, questions }) {
   try {
     const newExam = new Exam({
       title,
@@ -15,16 +8,16 @@ exports.createExam = async ({
       expiryDateTime,
       questions,
     });
-    
+
     await newExam.save();
 
     return newExam;
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.createExam = async (req, res) => {
+async function createExamWithDeadline(req, res) {
   try {
     const { title, questions } = req.body;
 
@@ -34,10 +27,8 @@ exports.createExam = async (req, res) => {
       questions,
     });
 
-    // Save the exam to the database
     await newExam.save();
 
-    // Respond with a success message
     res
       .status(201)
       .json({ message: "Exam created successfully", exam: newExam });
@@ -45,14 +36,14 @@ exports.createExam = async (req, res) => {
     console.error("Error creating exam:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-exports.removeQuestionFromExam = async (
+async function removeQuestionFromExam(
   examId,
   questionId,
   startDateTime,
   expiryDateTime
-) => {
+) {
   try {
     const updatedExam = await Exam.findByIdAndUpdate(
       examId,
@@ -65,9 +56,9 @@ exports.removeQuestionFromExam = async (
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.scheduleExam = async (examId, startDateTime, expiryDateTime) => {
+async function scheduleExam(examId, startDateTime, expiryDateTime) {
   try {
     const scheduledExam = await Exam.findByIdAndUpdate(
       examId,
@@ -78,18 +69,18 @@ exports.scheduleExam = async (examId, startDateTime, expiryDateTime) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.getExamDetails = async (examId) => {
+async function getExamDetails(examId) {
   try {
     const exam = await Exam.findById(examId);
     return exam;
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.reviewAnswers = async (examId) => {
+async function reviewAnswers(examId) {
   try {
     const answersToReview = await Answer.find({ exam: examId }).populate(
       "candidate",
@@ -99,4 +90,13 @@ exports.reviewAnswers = async (examId) => {
   } catch (error) {
     throw error;
   }
+}
+
+module.exports = {
+  createExam,
+  createExamWithDeadline,
+  removeQuestionFromExam,
+  scheduleExam,
+  getExamDetails,
+  reviewAnswers,
 };

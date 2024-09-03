@@ -6,14 +6,12 @@ const validateToken = async (req, res, next) => {
 
     if (token) {
       const authToken = token.split(" ")[1];
-      let decodedData;
-      decodedData = jwt.decode(authToken);
+      let decodedData = jwt.decode(authToken);
       req.authToken = authToken;
     }
-
     next();
   } catch (error) {
-    console.log(error);
+    console.log("There was a error in validating the user.", error);
   }
 };
 

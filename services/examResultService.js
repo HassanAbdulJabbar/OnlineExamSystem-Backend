@@ -1,7 +1,6 @@
-// examResultService.js
 const ExamResult = require("../models/examResultModel");
 
-exports.createExamResult = async ({ candidate, exam, score, resultStatus }) => {
+async function createExamResult({ candidate, exam, score, resultStatus }) {
   try {
     const newExamResult = new ExamResult({
       candidate,
@@ -14,4 +13,6 @@ exports.createExamResult = async ({ candidate, exam, score, resultStatus }) => {
   } catch (error) {
     throw error;
   }
-};
+}
+
+module.exports = { createExamResult };

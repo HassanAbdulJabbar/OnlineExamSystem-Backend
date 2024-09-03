@@ -1,21 +1,11 @@
-// mailer.js
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+const { transporter } = require("../app_state/mailer-state");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.NODEMAILER_EMAIL, // Add your Gmail email address
-    pass: process.env.NODEMAILER_PASSWORD, // Add your Gmail password
-  },
-});
-
-exports.sendEmail = ({
+async function sendEmail({
   senderEmail,
   receiverEmail,
   emailSubject,
   emailBody,
-}) => {
+}) {
   const data = {
     from: senderEmail,
     to: receiverEmail,
@@ -24,7 +14,12 @@ exports.sendEmail = ({
   };
 
   transporter.sendMail(data, (error, info) => {
-    if (error) console.log("Error sending email:", error);
-    else console.log("Email sent:", data, info.response);
+    if (error) {
+      console.log("Error sending email:", error);
+    } else {
+      console.log("Email sent:", data, info.response);
+    }
   });
-};
+}
+
+module.exports = { sendEmail };

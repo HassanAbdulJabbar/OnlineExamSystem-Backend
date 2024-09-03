@@ -1,7 +1,6 @@
-// answerService.js
 const Answer = require("../models/answerModel");
 
-exports.createAnswer = async ({ candidate, exam }) => {
+async function createAnswer({ candidate, exam }) {
   try {
     const newAnswer = new Answer({ candidate, exam });
     await newAnswer.save();
@@ -9,9 +8,9 @@ exports.createAnswer = async ({ candidate, exam }) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.editAnswer = async (answerId, updates) => {
+async function editAnswer(answerId, updates) {
   try {
     const editedAnswer = await Answer.findByIdAndUpdate(answerId, updates, {
       new: true,
@@ -20,9 +19,9 @@ exports.editAnswer = async (answerId, updates) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.exitAnswer = async (answerId) => {
+async function exitAnswer(answerId) {
   try {
     const updatedAnswer = await Answer.findByIdAndUpdate(
       answerId,
@@ -33,9 +32,9 @@ exports.exitAnswer = async (answerId) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.getAllAnswersOfExam = async (examId) => {
+async function getAllAnswersOfExam(examId) {
   try {
     const allAnswers = await Answer.find({ exam: examId }).populate(
       "candidate",
@@ -45,13 +44,21 @@ exports.getAllAnswersOfExam = async (examId) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.getAnswerOfCandidate = async (userId, examId) => {
+async function getAnswerOfCandidate(userId, examId) {
   try {
     const answer = await Answer.findOne({ candidate: userId, exam: examId });
     return answer;
   } catch (error) {
     throw error;
   }
+}
+
+module.exports = {
+  createAnswer,
+  editAnswer,
+  exitAnswer,
+  getAllAnswersOfExam,
+  getAnswerOfCandidate,
 };

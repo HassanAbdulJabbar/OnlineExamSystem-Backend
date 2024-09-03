@@ -1,10 +1,8 @@
-// Assuming you have an Express app and have defined your router
 const express = require("express");
 const router = express.Router();
 
 const ExamApproval = require("../models/examApprovalModel");
 
-// Route to get all exam approvals
 router.get("/examApprovals", async (req, res) => {
   try {
     const approvals = await ExamApproval.find();
@@ -15,7 +13,6 @@ router.get("/examApprovals", async (req, res) => {
   }
 });
 
-// Route to get a specific exam approval by ID
 router.get("/examApprovals/:approvalId", async (req, res) => {
   const { approvalId } = req.params;
 
@@ -31,7 +28,5 @@ router.get("/examApprovals/:approvalId", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
-// Add other routes as needed for creating, updating, or deleting exam approvals
 
 module.exports = router;

@@ -1,12 +1,12 @@
-// answerRoutes.js
 const express = require("express");
-const router = express.Router();
 const {
   createOrGetAnswer,
   editOrExitAnswer,
   getAllAnswers,
   getAnswerOfCandidate,
 } = require("../controllers/answerController");
+
+const router = express.Router();
 
 router.post("/answer", createOrGetAnswer);
 router.put("/answer/:answerId", editOrExitAnswer);

@@ -65,6 +65,6 @@ async function getExamDetails(req, res) {
 module.exports = {
   createQuestionnaire,
   removeQuestionFromExam,
-  // approveQuestionnaire,
+  approveQuestionnaire,
   getExamDetails,
 };

@@ -7,7 +7,6 @@ router.post("/send-invite", async (req, res) => {
   try {
     const { senderEmail, receiverEmail, emailSubject, emailBody } = req.body;
 
-    // Sending the invite email
     await mailer.sendEmail({
       senderEmail,
       receiverEmail,

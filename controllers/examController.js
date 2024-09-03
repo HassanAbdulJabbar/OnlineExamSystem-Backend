@@ -1,8 +1,7 @@
-// examController.js
 const Exam = require("../models/examModel");
 const ExamApproval = require("../models/examApprovalModel");
 
-exports.scheduleExam = async (req, res) => {
+async function scheduleExam(req, res) {
   try {
     const {
       title,
@@ -19,10 +18,8 @@ exports.scheduleExam = async (req, res) => {
       expiryDateTime,
       questions,
     });
-    
 
     await newExam.save();
-    
     res
       .status(201)
       .json({ message: "Exam scheduled successfully", exam: newExam });
@@ -30,9 +27,9 @@ exports.scheduleExam = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-exports.getAllExams = async (req, res) => {
+async function getAllExams(req, res) {
   try {
     const exams = await Exam.find();
     res.status(200).json({ exams });
@@ -40,13 +37,12 @@ exports.getAllExams = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-exports.removeExam = async (req, res) => {
+async function removeExam(req, res) {
   try {
     const { examId } = req.params;
 
-    // Find and delete the exam
     const deletedExam = await Exam.findByIdAndDelete(examId);
 
     if (!deletedExam) {
@@ -58,4 +54,10 @@ exports.removeExam = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+module.exports = {
+  scheduleExam,
+  getAllExams,
+  removeExam,
 };

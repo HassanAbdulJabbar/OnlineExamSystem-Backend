@@ -2,7 +2,7 @@
 const Answer = require("../models/answerModel");
 
 // Review an answer by a teacher or admin
-exports.reviewAnswer = async (req, res) => {
+async function reviewAnswer(req, res) {
   try {
     const { userId, examId, answerId } = req.params;
     const { score, feedback } = req.body;
@@ -19,4 +19,8 @@ exports.reviewAnswer = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+module.exports = {
+  reviewAnswer,
 };

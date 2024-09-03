@@ -6,17 +6,10 @@ const ExamApproval = require("../models/examApprovalModel");
 
 require("dotenv").config();
 
-function generateToken(user) {
-  return jwt.sign({ _id: user._id, userType: user.userType }, SECRET_KEY, {
-    expiresIn: "1h",
-  });
-}
-
 function verifyToken(token) {
   return jwt.verify(token, SECRET_KEY);
 }
 
-// Middleware to verify JWT and check if the user is an admin
 function authenticateAdmin(req, res, next) {
   const token = req.headers.authorization;
 
@@ -40,7 +33,6 @@ function authenticateAdmin(req, res, next) {
   }
 }
 
-// Function to add a new teacher
 async function addTeacher(req, res) {
   try {
     const { name, email, password } = req.body;
@@ -58,7 +50,6 @@ async function addTeacher(req, res) {
   }
 }
 
-// Function to remove a teacher
 async function removeTeacher(req, res) {
   try {
     const teacherId = req.params.teacherId;
@@ -70,7 +61,6 @@ async function removeTeacher(req, res) {
   }
 }
 
-// Function to update a teacher
 async function updateTeacher(req, res) {
   try {
     const teacherId = req.params.teacherId;
@@ -88,7 +78,6 @@ async function updateTeacher(req, res) {
   }
 }
 
-// Function to add a new student
 async function addStudent(req, res) {
   try {
     const { name, email, password, profilePicture } = req.body;
@@ -107,7 +96,6 @@ async function addStudent(req, res) {
   }
 }
 
-// Function to remove a student
 async function removeStudent(req, res) {
   try {
     const studentId = req.params.studentId;
@@ -119,7 +107,6 @@ async function removeStudent(req, res) {
   }
 }
 
-// Function to update a student
 async function updateStudent(req, res) {
   try {
     const studentId = req.params.studentId;
@@ -141,12 +128,10 @@ async function approveQuestionnaire(req, res) {
   try {
     const questionnaireId = req.params.questionnaireId;
 
-    // Update the questionnaire status to "Approved"
     await Questionnaire.findByIdAndUpdate(questionnaireId, {
       status: "Approved",
     });
 
-    // Create or update ExamApproval record for the approved questionnaire
     await ExamApproval.findOneAndUpdate(
       { exam: questionnaireId },
       { approved: "approved", approvalDate: new Date() },
@@ -164,12 +149,10 @@ async function disapproveQuestionnaire(req, res) {
   try {
     const questionnaireId = req.params.questionnaireId;
 
-    // Update the questionnaire status to "Approved"
     await Questionnaire.findByIdAndUpdate(questionnaireId, {
       status: "Disapproved",
     });
 
-    // Create or update ExamApproval record for the approved questionnaire
     await ExamApproval.findOneAndUpdate(
       { exam: questionnaireId },
       { approved: "Disapproved", approvalDate: new Date() },
@@ -197,17 +180,14 @@ async function viewExamScores(req, res) {
   }
 }
 
-// Cancel an exam for an admin
 async function cancelExam(req, res) {
   try {
     const questionnaireId = req.params.questionnaireId;
 
-    // Update the exam status to "Cancelled"
     await Questionnaire.findByIdAndUpdate(questionnaireId, {
       status: "Cancelled",
     });
 
-    // Create or update ExamApproval record for the cancelled exam
     await ExamApproval.findOneAndUpdate(
       { exam: questionnaireId },
       { approved: "Cancelled", approvalDate: new Date() },

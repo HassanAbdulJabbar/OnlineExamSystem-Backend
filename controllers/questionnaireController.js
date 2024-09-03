@@ -1,7 +1,6 @@
 const Questionnaire = require("../models/questionnaireModel");
 
-// Create a new questionnaire
-exports.createQuestionnaire = async (req, res) => {
+async function createQuestionnaire(req, res) {
   try {
     const { teacher, questions } = req.body;
     const newQuestionnaire = new Questionnaire({ teacher, questions });
@@ -14,10 +13,9 @@ exports.createQuestionnaire = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Update a questionnaire
-exports.updateQuestionnaire = async (req, res) => {
+async function updateQuestionnaire(req, res) {
   try {
     const questionnaireId = req.params.questionnaireId;
     const updates = req.body;
@@ -34,19 +32,17 @@ exports.updateQuestionnaire = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Approve a questionnaire (Admin only)
-exports.approveQuestionnaire = async (req, res) => {
+async function approveQuestionnaire(req, res) {
   try {
     const questionnaireId = req.params.questionnaireId;
-    // Check if the user is an admin
-    if (req.user.userType !== "Admin") {
+    if (req.user.userType !== "admin") {
       return res
         .status(403)
         .json({ message: "Forbidden - Admin access required" });
     }
-    // Approve the questionnaire
+
     await Questionnaire.findByIdAndUpdate(questionnaireId, {
       status: "Approved",
     });
@@ -55,4 +51,10 @@ exports.approveQuestionnaire = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+module.exports = {
+  createQuestionnaire,
+  updateQuestionnaire,
+  approveQuestionnaire,
 };
