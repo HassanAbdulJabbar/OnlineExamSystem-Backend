@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+
 require("dotenv").config();
 
 const signup = async (req, res) => {
@@ -35,11 +36,8 @@ const signin = async (req, res) => {
 
   try {
     const existingUser = await User.findOne({ email });
-    // where("userType")
-    // .eq(userType);
 
     const checkPassword = await bcrypt.compare(password, existingUser.password);
-    // console.log(checkPassword);
     console.log(existingUser);
 
     if (!checkPassword || !existingUser) {
@@ -70,14 +68,4 @@ const signin = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
-  try {
-    res.clearCookie("token");
-
-    res.send("Cookies cleared successfully.");
-  } catch (error) {
-    res.status(400).json({ message: "Something went wrong" });
-  }
-};
-
-module.exports = { signup, signin, logout };
+module.exports = { signup, signin };

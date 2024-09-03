@@ -2,8 +2,7 @@ const Exam = require("../models/examModel");
 const ExamResult = require("../models/examResultModel");
 const Answer = require("../models/answerModel");
 
-// View available exams for a student
-exports.viewAvailableExams = async (req, res) => {
+async function viewAvailableExams(req, res) {
   try {
     const availableExams = await Exam.find({
       startDateTime: { $lte: new Date() },
@@ -14,25 +13,23 @@ exports.viewAvailableExams = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Attempt an exam for a student
-exports.attemptExam = async (req, res) => {
+async function attemptExam(req, res) {
   try {
     const { userId, examId } = req.body;
-    // Check if the user is the candidate
     if (req.user._id !== userId) {
       return res
         .status(403)
         .json({ message: "Forbidden - Candidate access required" });
     }
-    // Check if the exam is currently active
+
     const exam = await Exam.findById(examId);
     const now = new Date();
     if (now < exam.startDateTime || now > exam.expiryDateTime) {
       return res.status(403).json({ message: "Forbidden - Exam not active" });
     }
-    // Check if the candidate has already attempted the exam
+
     const existingAnswer = await Answer.findOne({
       candidate: userId,
       exam: examId,
@@ -42,8 +39,7 @@ exports.attemptExam = async (req, res) => {
         .status(400)
         .json({ message: "Bad Request - Exam already attempted" });
     }
-    // Implement the logic to handle exam attempts by students
-    // Create a new answer for the candidate
+
     const newAnswer = new Answer({ candidate: userId, exam: examId });
     await newAnswer.save();
     res.status(201).json({
@@ -54,19 +50,18 @@ exports.attemptExam = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// View exam scores for a student
-exports.viewExamScores = async (req, res) => {
+async function viewExamScores(req, res) {
   try {
     const { userId, examId } = req.params;
-    // Check if the user is the candidate
+
     if (req.user._id !== userId) {
       return res
         .status(403)
         .json({ message: "Forbidden - Candidate access required" });
     }
-    // Fetch the exam result for the candidate
+
     const examResult = await ExamResult.findOne({
       candidate: userId,
       exam: examId,
@@ -76,4 +71,10 @@ exports.viewExamScores = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+module.exports = {
+  viewAvailableExams,
+  attemptExam,
+  viewExamScores,
 };

@@ -1,7 +1,6 @@
 const Answer = require("../models/answerModel");
 
-// Create or get answer for a candidate
-exports.createOrGetAnswer = async (req, res) => {
+async function createOrGetAnswer(req, res) {
   try {
     const { userId, examId, userResponses, totalMarks, passOrFail } = req.body;
 
@@ -15,7 +14,6 @@ exports.createOrGetAnswer = async (req, res) => {
     //   return res.status(200).json({ answer: existingAnswer });
     // }
 
-    // Create a new answer for the candidate
     const newAnswer = new Answer({
       candidate: userId,
       exam: examId,
@@ -31,10 +29,9 @@ exports.createOrGetAnswer = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Edit or exit answer for a candidate
-exports.editOrExitAnswer = async (req, res) => {
+async function editOrExitAnswer(req, res) {
   try {
     const { userId, examId, answerId } = req.params;
     const updates = req.body;
@@ -48,20 +45,16 @@ exports.editOrExitAnswer = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Get all answers for an exam (host view)
-exports.getAllAnswersOfExam = async (req, res) => {
+async function getAllAnswersOfExam(req, res) {
   try {
     const { userId, examId } = req.params;
-    // Check if the user is the host (teacher or admin)
-    // For simplicity, assume only teacher and admin can view all answers
     if (req.user.userType !== "Teacher" && req.user.userType !== "Admin") {
       return res
         .status(403)
         .json({ message: "Forbidden - Teacher or Admin access required" });
     }
-    // Get all answers for the exam
     const allAnswers = await Answer.find({ exam: examId }).populate(
       "candidate",
       "name"
@@ -71,26 +64,22 @@ exports.getAllAnswersOfExam = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-// Get answer of a candidate
-exports.getAnswerOfCandidate = async (req, res) => {
+async function getAnswerOfCandidate(req, res) {
   try {
     const { userId, examId } = req.params;
-    // Check if the user is the candidate
     if (req.user._id !== userId) {
       return res
         .status(403)
         .json({ message: "Forbidden - Candidate access required" });
     }
-    // Get the answer for the candidate
     const candidateAnswer = await Answer.findOne({
       candidate: userId,
       exam: examId,
     })
-      .populate("candidate") // Populate the candidate details
-      .populate("exam"); // Populate the exam details
-
+      .populate("candidate")
+      .populate("exam");
     if (!candidateAnswer) {
       return res.status(404).json({ message: "Answer not found" });
     }
@@ -107,9 +96,9 @@ exports.getAnswerOfCandidate = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
-};
+}
 
-exports.getAllAnswers = async (req, res) => {
+async function getAllAnswers(req, res) {
   try {
     const answers = await Answer.find();
     res.status(200).json({ answers });
@@ -117,4 +106,12 @@ exports.getAllAnswers = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
+}
+
+module.exports = {
+  createOrGetAnswer,
+  editOrExitAnswer,
+  getAllAnswersOfExam,
+  getAnswerOfCandidate,
+  getAllAnswers,
 };

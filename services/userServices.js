@@ -1,14 +1,7 @@
-// userService.js
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 
-exports.createUser = async ({
-  name,
-  email,
-  password,
-  userType,
-  profilePicture,
-}) => {
+async function createUser({ name, email, password, userType, profilePicture }) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -23,27 +16,27 @@ exports.createUser = async ({
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.getAllUsers = async () => {
+async function getAllUsers() {
   try {
     const users = await User.find().select("-password");
     return users;
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.getUserById = async (userId) => {
+async function getUserById(userId) {
   try {
     const user = await User.findById(userId).select("-password");
     return user;
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.updateUser = async (userId, updates) => {
+async function updateUser(userId, updates) {
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -55,9 +48,9 @@ exports.updateUser = async (userId, updates) => {
   } catch (error) {
     throw error;
   }
-};
+}
 
-exports.removeUser = async (userId) => {
+async function removeUser(userId) {
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -67,4 +60,12 @@ exports.removeUser = async (userId) => {
   } catch (error) {
     throw error;
   }
+}
+
+module.exports = {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  removeUser,
 };

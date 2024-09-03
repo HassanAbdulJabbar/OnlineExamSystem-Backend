@@ -1,4 +1,4 @@
 const ExamResult = require("../models/examResultModel");
 
-// View exam scores
+// TODO: Implement functionality for exam result controller
 exports.view;
