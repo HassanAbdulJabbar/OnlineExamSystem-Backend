@@ -1,19 +1,26 @@
 const Exam = require("../models/examModel");
 
-async function createExam({ title, startDateTime, expiryDateTime, questions }) {
+async function createExam({
+  title,
+  startDateTime,
+  expiryDateTime,
+  questions,
+  teacherId,
+}) {
   try {
     const newExam = new Exam({
       title,
       startDateTime,
       expiryDateTime,
       questions,
+      teacher: teacherId,
     });
 
     await newExam.save();
 
     return newExam;
   } catch (error) {
-    throw error;
+    console.error("An error occured in creating exam: ", error);
   }
 }
 
@@ -71,12 +78,30 @@ async function scheduleExam(examId, startDateTime, expiryDateTime) {
   }
 }
 
-async function getExamDetails(examId) {
+async function DeleteExam(examId) {
   try {
-    const exam = await Exam.findById(examId);
+    const exam = await Exam.findByIdAndDelete(examId);
+
+    if (!exam) {
+      return res.status(404).json({ message: "Exam not found" });
+    }
+
     return exam;
   } catch (error) {
     throw error;
+  }
+}
+
+async function getAllExams() {
+  try {
+    const exam = await Exam.find();
+
+    if (!exam) {
+      return res.status(404).json({ message: "No Exam found." });
+    }
+    return exam;
+  } catch (error) {
+    console.error("An error occured while fetching exams List: ", error);
   }
 }
 
@@ -96,7 +121,8 @@ module.exports = {
   createExam,
   createExamWithDeadline,
   removeQuestionFromExam,
+  getAllExams,
   scheduleExam,
-  getExamDetails,
+  DeleteExam,
   reviewAnswers,
 };

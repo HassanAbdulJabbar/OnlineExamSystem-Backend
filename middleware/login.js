@@ -49,11 +49,13 @@ const signin = async (req, res) => {
     const token = jwt.sign(
       {
         email: existingUser.email,
-        id: existingUser.id,
+        userType: existingUser.userType,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+
+    console.log("Logged In User Token: ", { token });
 
     res
       .cookie("token", token, {
