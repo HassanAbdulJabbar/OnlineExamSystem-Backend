@@ -1,5 +1,6 @@
 const Exam = require("../models/examModel");
 const ExamApproval = require("../models/examApprovalModel");
+const examService = require("../services/examService");
 
 async function scheduleExam(req, res) {
   try {
@@ -11,7 +12,7 @@ async function scheduleExam(req, res) {
       teacher: teacherId,
     } = req.body;
 
-    const newExam = new Exam({
+    const newExam = await examService.createExam({
       teacher: teacherId,
       title,
       startDateTime,
@@ -19,7 +20,6 @@ async function scheduleExam(req, res) {
       questions,
     });
 
-    await newExam.save();
     res
       .status(201)
       .json({ message: "Exam scheduled successfully", exam: newExam });
@@ -31,7 +31,8 @@ async function scheduleExam(req, res) {
 
 async function getAllExams(req, res) {
   try {
-    const exams = await Exam.find();
+    const exams = await examService.getAllExams();
+
     res.status(200).json({ exams });
   } catch (error) {
     console.error(error);
@@ -43,13 +44,9 @@ async function removeExam(req, res) {
   try {
     const { examId } = req.params;
 
-    const deletedExam = await Exam.findByIdAndDelete(examId);
+    const deletedExam = await examService.DeleteExam(examId);
 
-    if (!deletedExam) {
-      return res.status(404).json({ message: "Exam not found" });
-    }
-
-    res.status(200).json({ message: "Exam removed successfully", examId });
+    res.status(200).json({ message: "Exam removed successfully", deletedExam });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });

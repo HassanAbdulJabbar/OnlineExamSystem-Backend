@@ -1,16 +1,16 @@
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const User = require("../models/userModel");
 const Questionnaire = require("../models/questionnaireModel");
 const ExamResult = require("../models/examResultModel");
 const ExamApproval = require("../models/examApprovalModel");
 
-require("dotenv").config();
-
-function verifyToken(token) {
-  return jwt.verify(token, SECRET_KEY);
+async function verifyToken(token) {
+  const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+  return jwt.verify(decodedToken);
 }
 
-function authenticateAdmin(req, res, next) {
+async function authenticateUser(req, res, next) {
   const token = req.headers.authorization;
 
   if (!token) {
@@ -20,8 +20,9 @@ function authenticateAdmin(req, res, next) {
   }
 
   try {
-    const decoded = verifyToken(token);
-    if (decoded.userType !== "Admin") {
+    const decoded = await verifyToken(token);
+    console.log("USer toekn after decoded: ", decoded);
+    if (decoded.userType !== "admin") {
       return res
         .status(403)
         .json({ message: "Forbidden - Admin access required" });
@@ -202,7 +203,7 @@ async function cancelExam(req, res) {
 }
 
 module.exports = {
-  authenticateAdmin,
+  authenticateUser,
   addTeacher,
   removeTeacher,
   updateTeacher,
