@@ -1,50 +1,21 @@
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const User = require("../models/userModel");
 const Questionnaire = require("../models/questionnaireModel");
 const ExamResult = require("../models/examResultModel");
 const ExamApproval = require("../models/examApprovalModel");
+const adminService = require("../services/adminOperationService");
 
-async function verifyToken(token) {
-  const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
-  return jwt.verify(decodedToken);
-}
-
-async function authenticateUser(req, res, next) {
-  const token = req.headers.authorization;
-
-  if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized - Token not provided" });
-  }
-
+async function addUser(req, res) {
   try {
-    const decoded = await verifyToken(token);
-    console.log("USer toekn after decoded: ", decoded);
-    if (decoded.userType !== "admin") {
-      return res
-        .status(403)
-        .json({ message: "Forbidden - Admin access required" });
-    }
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Unauthorized - Invalid token" });
-  }
-}
-
-async function addTeacher(req, res) {
-  try {
-    const { name, email, password } = req.body;
-    const newUser = new User({
+    const { name, email, password, userType } = req.body;
+    const newUser = await adminService.createUser({
       name,
       email,
       password,
-      userType: "Teacher",
+      userType,
     });
-    await newUser.save();
     res.status(201).json({ message: "Teacher added successfully" });
+    console.log("Newly added user details: ", newUser);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
@@ -203,8 +174,7 @@ async function cancelExam(req, res) {
 }
 
 module.exports = {
-  authenticateUser,
-  addTeacher,
+  addUser,
   removeTeacher,
   updateTeacher,
   addStudent,

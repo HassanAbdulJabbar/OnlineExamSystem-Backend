@@ -1,53 +1,45 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../controllers/adminController");
-const { validateToken } = require("../middleware/getToken");
+const { validateToken } = require("../middleware/validateToken");
 
-router.post(
-  "/addTeacher",
-  // adminController.authenticateUser,
-  adminController.addTeacher
-);
+router.post("/addTeacher", validateToken, adminController.addUser);
 router.delete(
   "/removeTeacher/:teacherId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.removeTeacher
 );
 router.put(
   "/updateTeacher/:teacherId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.updateTeacher
 );
-router.post(
-  "/addStudent",
-  // adminController.authenticateUser,
-  adminController.addStudent
-);
+router.post("/addStudent", validateToken, adminController.addStudent);
 router.delete(
   "/removeStudent/:studentId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.removeStudent
 );
 router.put(
   "/updateStudent/:studentId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.updateStudent
 );
 
 router.put(
   "/approveQuestionnaire/:questionnaireId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.approveQuestionnaire
 );
 router.put(
   "/disapproveQuestionnaire/:questionnaireId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.disapproveQuestionnaire
 );
 router.get("/viewExamScores/:examId", adminController.viewExamScores);
 router.put(
   "/cancelExam/:questionnaireId",
-  // adminController.authenticateUser,
+  validateToken,
   adminController.cancelExam
 );
 

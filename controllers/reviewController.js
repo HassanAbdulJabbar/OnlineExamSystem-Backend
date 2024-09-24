@@ -1,7 +1,5 @@
-// ReviewController.js
 const Answer = require("../models/answerModel");
 
-// Review an answer by a teacher or admin
 async function reviewAnswer(req, res) {
   try {
     const { userId, examId, answerId } = req.params;
