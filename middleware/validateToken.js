@@ -3,7 +3,7 @@ const user = require("../models/userModel");
 
 async function validateToken(req, res, next) {
   try {
-    const token = req.cookies.token;
+    const token = req.headers["authorization"]?.split(" ")[1];
 
     if (token) {
       const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
@@ -17,7 +17,6 @@ async function validateToken(req, res, next) {
         req.role = decodedToken.role;
       }
     }
-
     next();
   } catch (error) {
     console.log(error);

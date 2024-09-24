@@ -5,10 +5,11 @@ const {
   getUserById,
   getAllUsers,
 } = require("../controllers/userController");
-// const { requireSignin, isAuthenticated } = require("../middleware/auth");
-router.get("/user", getUser);
-router.get("/users/:userId", getUserById);
-router.get("/users", getAllUsers);
+const { validateToken } = require("../middleware/validateToken");
+
+router.get("/user", validateToken, getUser);
+router.get("/users/:userId", validateToken, getUserById);
+router.get("/users", validateToken, getAllUsers);
 // router.put("/user/:userId", updateUser);
 // router.delete("/user/:userId", removeUser);
 

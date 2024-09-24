@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { createExamResult } = require("../controllers/examResultController");
+const examResultController = require("../controllers/examResultController");
+const { validateToken } = require("../middleware/validateToken");
 const {
   requireSignin,
   isAuthenticated,
@@ -9,10 +10,8 @@ const {
 
 router.post(
   "/examResult",
-  requireSignin,
-  isAuthenticated,
-  isTeacher,
-  createExamResult
+  validateToken,
+  examResultController.createExamResult
 );
 
 module.exports = router;
